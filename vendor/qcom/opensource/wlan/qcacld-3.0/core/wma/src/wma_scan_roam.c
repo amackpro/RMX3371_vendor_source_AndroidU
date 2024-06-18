@@ -2794,8 +2794,9 @@ wma_roam_update_vdev(tp_wma_handle wma,
 
 	wma_delete_sta(wma, del_sta_params);
 	wma_delete_bss(wma, vdev_id);
-	wma_add_bss_peer_sta(roam_synch_ind_ptr->self_mac.bytes,
-			     roam_synch_ind_ptr->bssid.bytes, true);
+	wma_create_peer(wma, roam_synch_ind_ptr->bssid.bytes,
+			WMI_PEER_TYPE_DEFAULT, vdev_id, true);
+
 	/* Update new peer's uc cipher */
 	wma_update_roamed_peer_unicast_cipher(wma, uc_cipher, cipher_cap,
 					      roam_synch_ind_ptr->bssid.bytes);
@@ -4965,7 +4966,7 @@ int wma_extscan_hotlist_match_event_handler(void *handle,
 		return -ENOMEM;
 
 	dest_ap = &dest_hotlist->ap[0];
-	dest_hotlist->numOfAps = event->total_entries;
+	dest_hotlist->numOfAps = numap;
 	dest_hotlist->requestId = event->config_request_id;
 
 	if (event->first_entry_index +

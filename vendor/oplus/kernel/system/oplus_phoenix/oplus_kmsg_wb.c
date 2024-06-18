@@ -362,7 +362,7 @@ struct block_device *get_reserve_partition_bdev(void)
 		}
 		dev = name_to_dev_t("PARTLABEL=opporeserve5");
 		if(dev != 0) {
-			bdev = blkdev_get_by_dev(dev, FMODE_READ | FMODE_WRITE | FMODE_EXCL, THIS_MODULE);
+			bdev = blkdev_get_by_dev(dev, FMODE_READ | FMODE_WRITE,NULL);
 			oprkl_err_print("success to get dev block\n");
 			return bdev;
 		}

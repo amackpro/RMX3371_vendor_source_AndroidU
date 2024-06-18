@@ -530,7 +530,8 @@ static void parse_accelerometer_sensor_dts(struct sensor_hw *hw, struct device_n
 	int rc = 0;
 	int di = 0;
 	char *feature[] = {
-		"use-sois"
+		"use-sois",
+		"single-acc"
 	};
 
 	hw->feature.feature[0] = 0;/*default not use s-ois */

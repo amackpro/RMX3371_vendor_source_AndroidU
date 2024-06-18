@@ -25,6 +25,8 @@
 
 #define PANEL_REG_MAX_LENS 28
 #define PANEL_TX_MAX_BUF 112
+#define PANEL_NAME_LENS 50
+#define RGB_COLOR_WEIGHT 3
 
 struct panel_id
 {
@@ -39,7 +41,11 @@ struct panel_info{
 };
 
 struct panel_serial_number {
-    char serial_number[40];
+	char serial_number[40];
+};
+
+struct panel_name {
+	char name[PANEL_NAME_LENS];
 };
 
 struct display_timing_info {
@@ -99,4 +105,6 @@ int oplus_display_get_dither_status(void *buf);
 int oplus_dsi_update_dynamic_osc_clock(void);
 /* Apollo DC backlight */
 int oplus_display_panel_set_dc_real_brightness(void *data);
+int oplus_display_panel_get_panel_bpp(void *buf);
+int oplus_display_panel_get_panel_name(void *buf);
 #endif /*_OPLUS_DISPLAY_PANEL_COMMON_H_*/

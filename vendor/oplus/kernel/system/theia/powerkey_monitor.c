@@ -151,7 +151,8 @@ static ssize_t powerkey_monitor_param_proc_write(struct file *file, const char _
 
     POWER_MONITOR_DEBUG_PRINTK("%s: buffer:%s\n", __func__, buffer);
 
-    while ((param = strsep(&pBuffer, ";"))) {
+    param = strsep(&pBuffer, ";");
+    while (param) {
         char key[64] = {0}, value[64] = {0};
         ret = sscanf(param, "%s %s", key, value);
         POWER_MONITOR_DEBUG_PRINTK("%s: param:%s ret:%d key:%s value:%s\n", __func__, param, ret, key, value);
@@ -160,6 +161,7 @@ static ssize_t powerkey_monitor_param_proc_write(struct file *file, const char _
                 POWER_MONITOR_DEBUG_PRINTK("%s: setup param fail! key:%s, value:%s\n", __func__, key, value);
             }
         }
+        param = strsep(&pBuffer, ";");
     }
 
     return count;

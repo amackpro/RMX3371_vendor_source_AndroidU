@@ -72,6 +72,8 @@ int oplus_dimlayer_bl_enable_v3_real;
 int oplus_dimlayer_bl_enable_v2_real = 0;
 bool oplus_skip_datadimming_sync = false;
 
+uint64_t serial_number_fir = 0x0;
+
 extern int oplus_debug_max_brightness;
 int oplus_seed_backlight = 0;
 bool oplus_dc_v2_on = false;
@@ -642,6 +644,17 @@ struct device_attribute *attr, char *buf) {
 	}
 
 	/*
+	 * To fix bug id 5552142, we do not read serial number frequently.
+	 * First read, then return the saved value.
+	 */
+	if (serial_number_fir != 0) {
+		ret = scnprintf(buf, PAGE_SIZE, "Get panel0 serial number: %llx\n",
+						serial_number_fir);
+		pr_info("%s read serial_number_fir 0x%x\n", __func__, serial_number_fir);
+		return ret;
+	}
+
+	/*
 	 * for some unknown reason, the panel_serial_info may read dummy,
 	 * retry when found panel_serial_info is abnormal.
 	 */
@@ -731,6 +744,8 @@ struct device_attribute *attr, char *buf) {
 		}
 
 		ret = scnprintf(buf, PAGE_SIZE, "Get panel serial number: %llx\n",serial_number);
+		/*Save serial_number value.*/
+		serial_number_fir = serial_number;
 		break;
 	}
 
@@ -2373,9 +2388,8 @@ int dsi_display_oplus_set_power(struct drm_connector *connector,
 					} else {
 						rc = dsi_panel_tx_cmd_set(display->panel, DSI_CMD_AOD_HBM_OFF);
 					}
-					if (!strcmp(display->panel->oplus_priv.vendor_name, "AMB655XL08")) {
-						display->panel->is_hbm_enabled = false;
-					}
+					display->panel->is_hbm_enabled = false;
+
 					oplus_update_aod_light_mode_unlock(display->panel);
 				} else {
 					pr_err("[%s][%d]failed to setting dsi command", __func__, __LINE__);
@@ -2430,7 +2444,7 @@ int dsi_display_oplus_set_power(struct drm_connector *connector,
 							dsi_panel_tx_cmd_set(display->panel, DSI_CMD_HBM_ON);
 						}
 					}
-					if (!strcmp(display->panel->oplus_priv.vendor_name, "AMB655XL08")) {
+					if (!oplus_dimlayer_bl_enable_v2) {
 						display->panel->is_hbm_enabled = true;
 					}
 				} else {

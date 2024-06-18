@@ -1875,6 +1875,8 @@
 			//for PD9V or QC9V
 			qcom,vbatt_pdqc_to_5v_thr = <4100>;
 
+			oplus,aging_ffc_version = <1>;
+
 			qcom,vooc_show_ui_soc_decimal;
 			qcom,ui_soc_decimal_speedmin = <20>;//2A
 

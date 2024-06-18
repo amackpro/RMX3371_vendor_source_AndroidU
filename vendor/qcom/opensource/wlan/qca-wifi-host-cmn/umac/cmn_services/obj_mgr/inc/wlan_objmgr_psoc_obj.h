@@ -198,6 +198,8 @@
 #define WLAN_SOC_F_TESTMODE_ENABLE     0x01000000
 	/* Dynamic HW mode swithch enable */
 #define WLAN_SOC_F_DYNAMIC_HW_MODE     0x02000000
+/* Peer create response */
+#define WLAN_SOC_F_PEER_CREATE_RESP    0x10000000
 
 /* PSOC op flags */
 

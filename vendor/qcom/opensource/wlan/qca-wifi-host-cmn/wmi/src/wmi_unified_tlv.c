@@ -14050,6 +14050,8 @@ static void populate_tlv_events_id(uint32_t *event_ids)
 #endif
 event_ids[wmi_roam_scan_chan_list_id] =
 			WMI_ROAM_SCAN_CHANNEL_LIST_EVENTID;
+	event_ids[wmi_peer_create_conf_event_id] =
+			WMI_PEER_CREATE_CONF_EVENTID;
 }
 
 /**
@@ -14345,6 +14347,11 @@ static void populate_tlv_service(uint32_t *wmi_service)
 			WMI_SERVICE_NDI_NDI_STA_SUPPORT;
 	wmi_service[wmi_service_host_scan_stop_vdev_all] =
 		WMI_SERVICE_HOST_SCAN_STOP_VDEV_ALL_SUPPORT;
+	wmi_service[wmi_service_dual_sta_roam_support] =
+			WMI_SERVICE_DUAL_STA_ROAM_SUPPORT;
+	wmi_service[wmi_service_peer_create_conf] =
+			WMI_SERVICE_PEER_CREATE_CONF;
+
 }
 
 /**

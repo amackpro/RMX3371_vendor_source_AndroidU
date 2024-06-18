@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2011-2020 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2022-2023 Qualcomm Innovation Center, Inc. All rights reserved.
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -350,33 +351,26 @@ end:
 		lim_send_start_bss_confirm(mac_ctx, &mlm_start_cnf);
 }
 
-/**
- * lim_post_join_set_link_state_callback()- registered callback to perform post
- * peer creation operations
- *
- * @mac: pointer to global mac structure
- * @callback_arg: registered callback argument
- * @status: peer creation status
- *
- * this is registered callback function during association to perform
- * post peer creation operation based on the peer creation status
- *
- * Return: none
- */
-static void lim_post_join_set_link_state_callback(
-		struct mac_context *mac,
-		struct pe_session *session_entry, QDF_STATUS status)
+void
+lim_post_join_set_link_state_callback(struct mac_context *mac, uint32_t vdev_id,
+				      QDF_STATUS status)
 {
 	tLimMlmJoinCnf mlm_join_cnf;
+	struct pe_session *session_entry;
 
+	/*
+	 * Allow defered messages after peer create response
+	 */
+	SET_LIM_PROCESS_DEFD_MESGS(mac, true);
+
+	session_entry = pe_find_session_by_vdev_id(mac, vdev_id);
 	if (!session_entry) {
-		pe_err("sessionId is NULL");
+		pe_err("vdev_id:%d PE session is NULL", vdev_id);
 		return;
 	}
 
 	if (QDF_IS_STATUS_ERROR(status)) {
-		pe_err("failed to find pe session for session id:%d",
-			session_entry->peSessionId);
+		pe_err("vdev%d: Failed to create peer", session_entry->vdev_id);
 		goto failure;
 	}
 
@@ -384,8 +378,7 @@ static void lim_post_join_set_link_state_callback(
 	 * store the channel switch session_entry in the lim
 	 * global variable
 	 */
-	session_entry->channelChangeReasonCode =
-			 LIM_SWITCH_CHANNEL_JOIN;
+	session_entry->channelChangeReasonCode = LIM_SWITCH_CHANNEL_JOIN;
 	session_entry->pLimMlmReassocRetryReq = NULL;
 	lim_send_switch_chnl_params(mac, session_entry);
 
@@ -428,11 +421,14 @@ lim_process_mlm_post_join_suspend_link(struct mac_context *mac_ctx,
 	mac_ctx->lim.lim_timers.gLimJoinFailureTimer.sessionId =
 		session->peSessionId;
 
+	/*
+	 * Defer msgs to LIM till peer create  confirm event is received
+	 */
+	SET_LIM_PROCESS_DEFD_MESGS(mac_ctx, false);
 	status = wma_add_bss_peer_sta(session->self_mac_addr, session->bssId,
-				      false);
-	lim_post_join_set_link_state_callback(mac_ctx, session, status);
-
-	return;
+				      true);
+	if (status == QDF_STATUS_E_RESOURCES)
+		SET_LIM_PROCESS_DEFD_MESGS(mac_ctx, true);
 }
 
 /**
